@@ -9,9 +9,16 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Semantic Versioning]: https://semver.org/
 
 
-## [Unreleased](https://github.com/bbugyi200/python-tools/compare/0.1.0...HEAD)
+## [Unreleased](https://github.com/bbugyi200/python-tools/compare/0.2.0...HEAD)
 
 No notable changes have been made.
+
+
+## [0.2.0](https://github.com/bbugyi200/python-tools/compare/0.1.0...0.2.0) - 2021-12-11
+
+### Changed
+
+* `shlib` now allows an optional bash library filename extension.
 
 
 ## [0.1.0](https://github.com/bbugyi200/python-tools/releases/tag/0.1.0) - 2021-12-11

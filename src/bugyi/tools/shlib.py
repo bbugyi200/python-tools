@@ -5,6 +5,9 @@ Examples:
     source $(shlib)
 
     # Source "foo.sh" bash library...
+    source $(shlib foo.sh)
+
+    # Source "foo.sh" bash library (the .sh extension is not necessary)...
     source $(shlib foo)
 """
 
@@ -29,10 +32,7 @@ def parse_cli_args(argv: Sequence[str]) -> Arguments:
         "library_name",
         default="bugyi",
         nargs="?",
-        help=(
-            "The basename (i.e. no extension) of the bash library you want to"
-            " use."
-        ),
+        help="The basename of the bash library you want to use.",
     )
 
     args = parser.parse_args(argv[1:])
@@ -43,7 +43,12 @@ def parse_cli_args(argv: Sequence[str]) -> Arguments:
 
 def run(args: Arguments) -> int:
     """This function acts as this tool's main entry point."""
-    print(read_text("bugyi.tools.data.shlib", args.library_name + ".sh"))
+    if "." not in args.library_name:
+        libname = args.library_name + ".sh"
+    else:
+        libname = args.library_name
+
+    print(read_text("bugyi.tools.data.shlib", libname))
     return 0
 
 
