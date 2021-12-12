@@ -103,7 +103,7 @@ setup(
     description=DESCRIPTION,
     entry_points={
         "console_scripts": [
-            "bugyi.tools = bugyi.tools.cli:main",
+            "shlib = bugyi.tools.shlib:main",
         ]
     },
     include_package_data=True,
@@ -112,6 +112,7 @@ setup(
     long_description=long_description(),
     long_description_content_type="text/markdown",
     name="bugyi.tools",
+    package_data={"bugyi.tools.data.shlib": ["*.sh"]},
     package_dir={"": "src"},
     packages=find_namespace_packages(where="src"),
     python_requires=PYTHON_REQUIRES,
