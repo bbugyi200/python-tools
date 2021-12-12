@@ -1,4 +1,12 @@
-"""Contains the bugyi.tools package's main entry point."""
+"""Used to dynamically source bash libraries.
+
+Examples:
+    # Source default bash library...
+    source $(shlib)
+
+    # Source "foo.sh" bash library...
+    source $(shlib foo)
+"""
 
 from importlib.resources import read_text
 from typing import Sequence
