@@ -42,7 +42,7 @@ def parse_cli_args(argv: Sequence[str]) -> Arguments:
         "-m",
         "--minimum-word-size",
         type=int,
-        default=3,
+        default=4,
         help=(
             "The minimum size of the anagrams we will output. Defaults to"
             " %(default)s."
