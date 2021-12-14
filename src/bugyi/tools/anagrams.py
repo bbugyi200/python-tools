@@ -76,7 +76,7 @@ def run(args: Arguments) -> int:
             console.rule(f"{i + 1}-letter words", style="bold black")
             console.print(
                 sorted(
-                    list(valid_words), key=lambda word: f"{len(word)}{word}"
+                    list(valid_words), key=lambda word: (len(word), word)
                 )
             )
     return 0
