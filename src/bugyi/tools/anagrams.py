@@ -82,7 +82,7 @@ def run(args: Arguments) -> int:
     return 0
 
 
-@cache
+@cache()
 def english_words() -> dict[str, ONE]:
     """Returns a dictionary of english words to the integer 1.
 
