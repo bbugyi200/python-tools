@@ -104,13 +104,13 @@ def english_words() -> WordContainer:
 
 
 def is_word_factory(
-    lang_words: Callable[[], WordContainer]
+    make_word_container: Callable[[], WordContainer]
 ) -> Callable[[str], bool]:
     """Returns an 'is_word(word: str) -> bool' function."""
 
     def is_word(word: str) -> bool:
         """Is ``word`` a valid word?."""
-        return word in lang_words()
+        return make_word_container()[word]
 
     return is_word
 
