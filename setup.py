@@ -103,6 +103,7 @@ setup(
     description=DESCRIPTION,
     entry_points={
         "console_scripts": [
+            "anagrams = bugyi.tools.anagrams:main",
             "shlib = bugyi.tools.shlib:main",
         ]
     },
