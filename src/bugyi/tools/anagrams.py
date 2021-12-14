@@ -8,22 +8,29 @@ another name, word or phrase.
 
 from __future__ import annotations
 
+from collections import defaultdict
 from functools import lru_cache as cache
 import itertools as it
 import json
 from pathlib import Path
-from typing import Callable, Sequence
+from typing import Callable, Dict, Optional, Sequence
 
-from bugyi.lib.types import Final, Literal
+from bugyi.lib.types import Final
 import clap
 from pydantic.dataclasses import dataclass
 from rich.console import Console
 
 
+# dynamic globals
 console = Console()
 
+# custom types
+WordContainer = Dict[str, bool]
+
+# constants
+BIG_WORD_MINIMUM: Final = 4
 ENGLISH_JSON: Final = str(Path().home() / ".config/words/english.json")
-ONE = Literal[1]
+SMALL_WORD_MINIMUM: Final = 3
 
 
 @dataclass(frozen=True)
@@ -31,7 +38,7 @@ class Arguments(clap.Arguments):
     """Command-line arguments."""
 
     phrase: str
-    minimum_word_size: int
+    minimum_word_size: Optional[int]
 
 
 def parse_cli_args(argv: Sequence[str]) -> Arguments:
@@ -42,7 +49,7 @@ def parse_cli_args(argv: Sequence[str]) -> Arguments:
         "-m",
         "--minimum-word-size",
         type=int,
-        default=4,
+        default=None,
         help=(
             "The minimum size of the anagrams we will output. Defaults to"
             " %(default)s."
@@ -59,8 +66,12 @@ def run(args: Arguments) -> int:
     """This function acts as this tool's main entry point."""
     is_english_word = is_word_factory(english_words)
 
+    minimum_word_size = args.minimum_word_size or default_minimum_word_size(
+        args.phrase
+    )
+
     found_any_matches = False
-    for i in range(args.minimum_word_size - 1, len(args.phrase)):
+    for i in range(minimum_word_size - 1, len(args.phrase)):
         valid_words = set()
         for combo in it.combinations(args.phrase, i + 1):
             new_word = "".join(combo)
@@ -81,18 +92,19 @@ def run(args: Arguments) -> int:
 
 
 @cache()
-def english_words() -> dict[str, ONE]:
+def english_words() -> WordContainer:
     """Returns a dictionary of english words to the integer 1.
 
     Used for fast boolean check.
     """
+    result: WordContainer = defaultdict(bool)
     with Path(ENGLISH_JSON).open("r") as fp:
-        result: dict[str, ONE] = json.load(fp)
+        result.update(json.load(fp))
         return result
 
 
 def is_word_factory(
-    lang_words: Callable[[], dict[str, ONE]]
+    lang_words: Callable[[], WordContainer]
 ) -> Callable[[str], bool]:
     """Returns an 'is_word(word: str) -> bool' function."""
 
@@ -101,6 +113,14 @@ def is_word_factory(
         return word in lang_words()
 
     return is_word
+
+
+def default_minimum_word_size(phrase: str) -> int:
+    """Returns the default minimum anagram size."""
+    if len(phrase) < 10:
+        return SMALL_WORD_MINIMUM
+    else:
+        return BIG_WORD_MINIMUM
 
 
 main = clap.main_factory(parse_cli_args, run)
