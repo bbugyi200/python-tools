@@ -13,10 +13,9 @@ from functools import lru_cache as cache
 import itertools as it
 import json
 from pathlib import Path
-from typing import Callable, Dict, Optional, Sequence
+from typing import Callable, Dict, Final, Optional, Sequence
 
-from bugyi.lib.types import Final
-import clap
+import clack
 from pydantic.dataclasses import dataclass
 from rich.console import Console
 
@@ -34,35 +33,37 @@ SMALL_WORD_MINIMUM: Final = 3
 
 
 @dataclass(frozen=True)
-class Arguments(clap.Arguments):
+class Config(clack.Config):
     """Command-line arguments."""
 
     phrase: str
     minimum_word_size: Optional[int]
 
+    @classmethod
+    def from_cli_args(cls, argv: Sequence[str]) -> Config:
+        """Parses command-line arguments."""
+        parser = clack.Parser()
+        parser.add_argument(
+            "phrase", help="The phrase to create anagrams from."
+        )
+        parser.add_argument(
+            "-m",
+            "--minimum-word-size",
+            type=int,
+            default=None,
+            help=(
+                "The minimum size of the anagrams we will output. Defaults to"
+                " %(default)s."
+            ),
+        )
 
-def parse_cli_args(argv: Sequence[str]) -> Arguments:
-    """Parses command-line arguments."""
-    parser = clap.Parser()
-    parser.add_argument("phrase", help="The phrase to create anagrams from.")
-    parser.add_argument(
-        "-m",
-        "--minimum-word-size",
-        type=int,
-        default=None,
-        help=(
-            "The minimum size of the anagrams we will output. Defaults to"
-            " %(default)s."
-        ),
-    )
+        args = parser.parse_args(argv[1:])
+        kwargs = vars(args)
 
-    args = parser.parse_args(argv[1:])
-    kwargs = vars(args)
-
-    return Arguments(**kwargs)
+        return Config(**kwargs)
 
 
-def run(args: Arguments) -> int:
+def run(args: Config) -> int:
     """This function acts as this tool's main entry point."""
     is_english_word = is_word_factory(english_words)
 
@@ -123,4 +124,4 @@ def default_minimum_word_size(phrase: str) -> int:
         return BIG_WORD_MINIMUM
 
 
-main = clap.main_factory(parse_cli_args, run)
+main = clack.main_factory("anagrams", run)

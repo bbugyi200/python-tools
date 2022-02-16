@@ -11,45 +11,45 @@ Examples:
     source $(shlib foo)
 """
 
+from __future__ import annotations
+
 from importlib.resources import read_text
 from typing import Sequence
 
-import clap
-from pydantic.dataclasses import dataclass
+import clack
 
 
-@dataclass(frozen=True)
-class Arguments(clap.Arguments):
+class Config(clack.Config):
     """Command-line arguments."""
 
     library_name: str
 
+    @classmethod
+    def from_cli_args(cls, argv: Sequence[str]) -> Config:
+        """Parses command-line arguments."""
+        parser = clack.Parser()
+        parser.add_argument(
+            "library_name",
+            default="bugyi",
+            nargs="?",
+            help="The basename of the bash library you want to use.",
+        )
 
-def parse_cli_args(argv: Sequence[str]) -> Arguments:
-    """Parses command-line arguments."""
-    parser = clap.Parser()
-    parser.add_argument(
-        "library_name",
-        default="bugyi",
-        nargs="?",
-        help="The basename of the bash library you want to use.",
-    )
+        args = parser.parse_args(argv[1:])
+        kwargs = vars(args)
 
-    args = parser.parse_args(argv[1:])
-    kwargs = vars(args)
-
-    return Arguments(**kwargs)
+        return Config(**kwargs)
 
 
-def run(args: Arguments) -> int:
+def run(cfg: Config) -> int:
     """This function acts as this tool's main entry point."""
-    if "." not in args.library_name:
-        libname = args.library_name + ".sh"
+    if "." not in cfg.library_name:
+        libname = cfg.library_name + ".sh"
     else:
-        libname = args.library_name
+        libname = cfg.library_name
 
     print(read_text("bugyi.tools.data.shlib", libname))
     return 0
 
 
-main = clap.main_factory(parse_cli_args, run)
+main = clack.main_factory("shlib", run)
